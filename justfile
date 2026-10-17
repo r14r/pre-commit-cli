@@ -37,8 +37,13 @@ check:
 version:
     {{BIN}}/{{APP}} --version
 
+# Bootstrap project tools without requiring external venv helpers
+bootstrap:
+    @if [ ! -x "{{BIN}}/python" ]; then python3 -m venv {{VENV}}/python; fi
+    {{BIN}}/python -m pip install -e .
+
 # Build standalone binary using PyInstaller
-build-pyinstaller:
+build-pyinstaller: bootstrap
     rm -rf build dist/pyinstaller dist/*.spec
     mkdir -p dist/pyinstaller
     {{BIN}}/pyinstaller --onefile --name {{APP}} --distpath dist/pyinstaller src/pre_commit_cli/__main__.py
@@ -59,8 +64,8 @@ build-pyoxidizer:
     cp -R build/x86_64-apple-darwin/*/install/ dist/pyoxidizer/
     echo "pyoxidizer" > dist/pyoxidizer/build_source.txt
 
-# Build standalone package (options: "pyinstaller", "shiv", "pyoxidizer", default: "pyoxidizer")
-build tool="pyoxidizer":
+# Build standalone package (options: "pyinstaller", "shiv", "pyoxidizer", default: "pyinstaller")
+build tool="pyinstaller":
     @if [ "{{tool}}" = "shiv" ]; then \
         just build-shiv; \
     elif [ "{{tool}}" = "pyinstaller" ]; then \
@@ -79,8 +84,8 @@ build-all: build-pyinstaller build-shiv build-pyoxidizer
 run-shiv *args:
     {{BIN}}/python dist/shiv/{{APP}}.pyz {{args}}
 
-# Deploy compiled binary to DeveloperTools/bin (options: "pyinstaller", "shiv", "pyoxidizer", default: "pyoxidizer")
-deploy tool="pyoxidizer":
+# Deploy compiled binary to DeveloperTools/bin (options: "pyinstaller", "shiv", "pyoxidizer", default: "pyinstaller")
+deploy tool="pyinstaller":
     @if [ "{{tool}}" = "pyinstaller" ]; then \
         if [ ! -f "dist/pyinstaller/{{APP}}" ]; then \
             just build pyinstaller; \
@@ -120,3 +125,6 @@ clean:
 # Create project ZIP
 zip:
     cd .. && zip -r {{APP}}-python-project.zip {{APP}}-python-project -x '{{APP}}-python-project/.venv/*' '{{APP}}-python-project/dist/*' '{{APP}}-python-project/build/*'
+
+# Install is an alias for deploy (used by update-cli fallback)
+install: deploy
