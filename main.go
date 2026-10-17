@@ -22,7 +22,7 @@ case "base","yaml","json":return []Repo{{Repo:"https://github.com/pre-commit/pre
 case "security":return []Repo{{Repo:"https://github.com/pre-commit/pre-commit-hooks",Rev:"v5.0.0",Hooks:hooks("detect-private-key","check-added-large-files","check-merge-conflict")}},nil
 case "gitleaks":return []Repo{{Repo:"https://github.com/gitleaks/gitleaks",Rev:"v8.28.0",Hooks:hooks("gitleaks")}},nil
 case "python","django":return []Repo{{Repo:"https://github.com/astral-sh/ruff-pre-commit",Rev:"v0.8.6",Hooks:hooks("ruff","ruff-format")}},nil
-case "go":return []Repo{{Repo:"local",Hooks:[]map[string]any{{"id":"go-fmt","name":"Go formatting","entry":"gofmt -d","language":"system","types":[]string{"go"}},{"id":"go-vet","name":"go vet","entry":"go vet ./...","language":"system","pass_filenames":false,"always_run":true}}}},nil
+case "go":return []Repo{{Repo:"local",Hooks:[]map[string]any{{"id":"go-fmt","name":"Go formatting","entry":"bash -c 'output=$(gofmt -l "$@"); test -z "$output"' --","language":"system","types":[]string{"go"}},{"id":"go-vet","name":"go vet","entry":"go vet ./...","language":"system","pass_filenames":false,"always_run":true}}}},nil
 case "shell":return []Repo{{Repo:"https://github.com/scop/pre-commit-shfmt",Rev:"v3.12.0-2",Hooks:hooks("shfmt")}},nil
 case "node":return []Repo{{Repo:"local",Hooks:[]map[string]any{{"id":"npm-lint","name":"npm lint","entry":"npm run lint --if-present","language":"system","pass_filenames":false}}}},nil
 case "markdown":return []Repo{{Repo:"https://github.com/DavidAnson/markdownlint-cli2",Rev:"v0.44.0",Hooks:hooks("markdownlint-cli2")}},nil
