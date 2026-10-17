@@ -128,3 +128,51 @@ zip:
 
 # Install is an alias for deploy (used by update-cli fallback)
 install: deploy
+
+# Install the QA toolchain and activate Git commit/push hooks
+precommit-bootstrap: bootstrap
+    {{BIN}}/python -m pip install -e ".[dev]"
+    {{BIN}}/pre-commit install --hook-type pre-commit --hook-type pre-push
+
+# Run all ordinary hooks against the entire project (read-only Ruff checks)
+precommit:
+    {{BIN}}/pre-commit run --all-files
+
+# Run ordinary checks and deeper manual test/security hooks
+precommit-all:
+    {{BIN}}/pre-commit run --all-files
+    {{BIN}}/pre-commit run --all-files --hook-stage manual
+
+# Run checks only on staged files
+precommit-staged:
+    {{BIN}}/pre-commit run
+
+# Fix Ruff lint and format issues in place
+precommit-fix:
+    {{BIN}}/ruff check --fix src
+    {{BIN}}/ruff format src
+
+# Run full test suite when tests exist
+precommit-test:
+    @if [ -d tests ] && find tests -name 'test_*.py' | grep -q .; then {{BIN}}/python -m pytest -q; else echo "No pytest tests yet"; fi
+
+# Run source security scan
+precommit-security:
+    {{BIN}}/bandit -q -r src
+    {{BIN}}/python -m pip_audit
+
+# Validate the pre-commit configuration
+precommit-validate:
+    {{BIN}}/pre-commit validate-config
+
+# Update hooks and reinstall local Git hook scripts
+precommit-install:
+    {{BIN}}/pre-commit install --hook-type pre-commit --hook-type pre-push
+
+# Remove locally installed Git hook scripts
+precommit-uninstall:
+    {{BIN}}/pre-commit uninstall --hook-type pre-commit --hook-type pre-push
+
+# Clear cached hook environments
+precommit-clean:
+    {{BIN}}/pre-commit clean
