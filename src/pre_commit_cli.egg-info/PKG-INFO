@@ -2,12 +2,8 @@ Metadata-Version: 2.4
 Name: pre-commit-cli
 Version: 2.0.0
 Summary: Setup, detect and manage pre-commit hooks for common project environments.
-License: UNKNOWN
-Platform: UNKNOWN
 Requires-Python: >=3.10
 Requires-Dist: pre-commit>=4.0.0
 Requires-Dist: pyinstaller>=6.10.0
 Requires-Dist: pyyaml>=6.0.2
 Requires-Dist: shiv>=1.0.6
-
-UNKNOWN
