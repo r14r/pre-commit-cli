@@ -10,14 +10,15 @@ default:
 # Dependencies
 bootstrap:
     @go mod download
-    @gofmt -w main.go main_test.go
+    @go mod verify
 
-# Go formatting and static checks
+# Go formatting
 fmt:
-    @gofmt -w main.go
+    @gofmt -w .
 
+# Static checks
 check:
-    @test -z "$(gofmt -l main.go main_test.go)" || { echo "Go files need formatting"; gofmt -l main.go; exit 1; }
+    @files="$(gofmt -l .)"; if [ -n "$files" ]; then echo "Go files need formatting:"; echo "$files"; exit 1; fi
     @go vet ./...
 
 # Tests
@@ -29,18 +30,18 @@ build:
     @mkdir -p dist
     @go build -trimpath -ldflags "-s -w" -o dist/{{APP}} .
 
-# Install binary; override DEPLOY_PATH to change target
+# Install binary
 install: build
     @mkdir -p "{{DEPLOY_DIR}}"
     @install -m 0755 dist/{{APP}} "{{DEPLOY_DIR}}/{{APP}}"
 
-# Run the Go CLI
+# Run Go CLI
 run *args:
     @go run . {{args}}
 
 # Git hooks and quality checks
 precommit-bootstrap:
-    @if command -v pre-commit >/dev/null 2>&1; then pre-commit install --hook-type pre-commit --hook-type pre-push; else echo "Install pre-commit or run pre-commit-cli setup"; fi
+    @if command -v pre-commit >/dev/null 2>&1; then pre-commit install --hook-type pre-commit --hook-type pre-push; else echo "Upstream pre-commit is optional; install it to activate Git hooks."; fi
 
 precommit:
     @just check
@@ -56,6 +57,6 @@ precommit-fix:
 clean:
     @rm -rf dist
 
-# Show version
+# Version
 version:
     @go run . version
