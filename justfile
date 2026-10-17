@@ -10,13 +10,14 @@ default:
 # Dependencies
 bootstrap:
     @go mod download
+    @gofmt -w main.go main_test.go
 
 # Go formatting and static checks
 fmt:
     @gofmt -w main.go
 
 check:
-    @test -z "$(gofmt -l main.go)" || { echo "Go files need formatting"; gofmt -l main.go; exit 1; }
+    @test -z "$(gofmt -l main.go main_test.go)" || { echo "Go files need formatting"; gofmt -l main.go; exit 1; }
     @go vet ./...
 
 # Tests
