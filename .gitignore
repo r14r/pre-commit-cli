@@ -1,0 +1,5 @@
+.set_env.sh
+.envrc
+.venv
+
+dist/
