@@ -1,6 +1,7 @@
 .set_env.sh
 .envrc
-.venv
-
 dist/
 build/
+*.test
+coverage.out
+.DS_Store
