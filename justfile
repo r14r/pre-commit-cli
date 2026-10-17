@@ -37,10 +37,13 @@ check:
 version:
     {{BIN}}/{{APP}} --version
 
-# Bootstrap project tools without requiring external venv helpers
+# Bootstrap virtualenv, runtime/dev dependencies and Git commit/push hooks
 bootstrap:
     @if [ ! -x "{{BIN}}/python" ]; then python3 -m venv {{VENV}}/python; fi
-    @{{BIN}}/python -m pip install --quiet --quiet --progress-bar off --disable-pip-version-check --no-input -e .
+    @{{BIN}}/python -m pip install --quiet --quiet --progress-bar off --disable-pip-version-check --no-input -e ".[dev]"
+    @{{BIN}}/pre-commit validate-config
+    @{{BIN}}/pre-commit install --hook-type pre-commit --hook-type pre-push
+    @echo "Bootstrap complete: development tools and Git hooks installed"
 
 # Build standalone binary using PyInstaller
 build-pyinstaller: bootstrap
@@ -129,11 +132,8 @@ zip:
 # Install is an alias for deploy (used by update-cli fallback)
 install: deploy
 
-# Install the QA toolchain and activate Git commit/push hooks
-precommit-bootstrap:
-    @if [ ! -x "{{BIN}}/python" ]; then python3 -m venv {{VENV}}/python; fi
-    @{{BIN}}/python -m pip install --quiet --quiet --progress-bar off --disable-pip-version-check --no-input -e ".[dev]"
-    @{{BIN}}/pre-commit install --hook-type pre-commit --hook-type pre-push
+# Compatibility alias: bootstrap now includes all pre-commit setup
+precommit-bootstrap: bootstrap
 
 # Run all ordinary hooks against the entire project (read-only Ruff checks)
 precommit:
