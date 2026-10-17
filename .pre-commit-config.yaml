@@ -1,88 +1,20 @@
-# Self-contained local hooks: all Python tooling is installed by "just precommit-bootstrap".
-# Avoid remote hook environments and do not recursively call pre-commit-cli.
 repos:
   - repo: local
     hooks:
-      - id: check-added-large-files
-        name: Reject large added files (> 1 MiB)
-        entry: .venv/python/bin/check-added-large-files --maxkb=1024
+      - id: gofmt
+        name: Go formatting check
+        entry: bash -c 'output="$(gofmt -l "$@")"; test -z "$output" || { echo "$output"; exit 1; }' --
         language: system
-      - id: check-merge-conflict
-        name: Detect merge conflict markers
-        entry: .venv/python/bin/check-merge-conflict
-        language: system
-        types: [text]
-      - id: check-case-conflict
-        name: Detect case-insensitive path collisions
-        entry: .venv/python/bin/check-case-conflict
-        language: system
-      - id: check-symlinks
-        name: Detect broken symlinks
-        entry: .venv/python/bin/check-symlinks
-        language: system
-        types: [symlink]
-      - id: check-yaml
-        name: Validate YAML
-        entry: .venv/python/bin/check-yaml
-        language: system
-        types: [yaml]
-      - id: check-json
-        name: Validate JSON
-        entry: .venv/python/bin/check-json
-        language: system
-        types: [json]
-      - id: check-toml
-        name: Validate TOML
-        entry: .venv/python/bin/check-toml
-        language: system
-        types: [toml]
-      - id: check-ast
-        name: Validate Python AST
-        entry: .venv/python/bin/check-ast
-        language: system
-        types: [python]
-      - id: debug-statements
-        name: Reject Python debug statements
-        entry: .venv/python/bin/debug-statement-hook
-        language: system
-        types: [python]
-      - id: trailing-whitespace
-        name: Remove trailing whitespace
-        entry: .venv/python/bin/trailing-whitespace-fixer
-        language: system
-        types: [text]
-      - id: end-of-file-fixer
-        name: Ensure final newline
-        entry: .venv/python/bin/end-of-file-fixer
-        language: system
-        types: [text]
-      - id: ruff
-        name: Ruff lint
-        entry: .venv/python/bin/ruff check
-        language: system
-        types: [python]
-      - id: ruff-format
-        name: Ruff format check
-        entry: .venv/python/bin/ruff format --check
-        language: system
-        types: [python]
-      - id: bandit
-        name: Bandit security scan
-        entry: .venv/python/bin/bandit -q -r src
-        language: system
-        pass_filenames: false
-        stages: [manual]
-      - id: pytest
-        name: Run pytest suite
-        entry: bash -c 'if [ -d tests ] && find tests -type f -name "test_*.py" | grep -q .; then .venv/python/bin/python -m pytest -q; else echo "No pytest tests yet"; fi'
+        types: [go]
+      - id: go-vet
+        name: Go vet
+        entry: go vet ./...
         language: system
         pass_filenames: false
         always_run: true
-        stages: [manual]
-      - id: pip-audit
-        name: Audit installed Python dependencies
-        entry: .venv/python/bin/python -m pip_audit
+      - id: go-test
+        name: Go tests
+        entry: go test ./...
         language: system
         pass_filenames: false
         always_run: true
-        stages: [manual]
