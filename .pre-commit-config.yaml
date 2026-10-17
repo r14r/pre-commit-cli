@@ -1,0 +1,88 @@
+# Self-contained local hooks: all Python tooling is installed by "just precommit-bootstrap".
+# Avoid remote hook environments and do not recursively call pre-commit-cli.
+repos:
+  - repo: local
+    hooks:
+      - id: check-added-large-files
+        name: Reject large added files (> 1 MiB)
+        entry: check-added-large-files --maxkb=1024
+        language: system
+      - id: check-merge-conflict
+        name: Detect merge conflict markers
+        entry: check-merge-conflict
+        language: system
+        types: [text]
+      - id: check-case-conflict
+        name: Detect case-insensitive path collisions
+        entry: check-case-conflict
+        language: system
+      - id: check-symlinks
+        name: Detect broken symlinks
+        entry: check-symlinks
+        language: system
+        types: [symlink]
+      - id: check-yaml
+        name: Validate YAML
+        entry: check-yaml
+        language: system
+        types: [yaml]
+      - id: check-json
+        name: Validate JSON
+        entry: check-json
+        language: system
+        types: [json]
+      - id: check-toml
+        name: Validate TOML
+        entry: check-toml
+        language: system
+        types: [toml]
+      - id: check-ast
+        name: Validate Python AST
+        entry: check-ast
+        language: system
+        types: [python]
+      - id: debug-statements
+        name: Reject Python debug statements
+        entry: debug-statement-hook
+        language: system
+        types: [python]
+      - id: trailing-whitespace
+        name: Remove trailing whitespace
+        entry: trailing-whitespace-fixer
+        language: system
+        types: [text]
+      - id: end-of-file-fixer
+        name: Ensure final newline
+        entry: end-of-file-fixer
+        language: system
+        types: [text]
+      - id: ruff
+        name: Ruff lint
+        entry: ruff check
+        language: system
+        types: [python]
+      - id: ruff-format
+        name: Ruff format check
+        entry: ruff format --check
+        language: system
+        types: [python]
+      - id: bandit
+        name: Bandit security scan
+        entry: bandit -q -r src
+        language: system
+        pass_filenames: false
+        stages: [manual]
+      - id: pytest
+        name: Run pytest suite
+        entry: bash -c 'if [ -d tests ] && find tests -type f -name "test_*.py" | grep -q .; then python -m pytest -q; else echo "No pytest tests yet"; fi'
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [manual]
+      - id: pip-audit
+        name: Audit installed Python dependencies
+        entry: python -m pip_audit
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [manual]
