@@ -1,32 +1,32 @@
 # pre-commit-cli
 
-Native Go command-line utility for detecting project languages, generating and extending pre-commit hooks, and running diagnostics.
+A native Go CLI for detecting project languages, managing pre-commit hook configurations, installing hooks, and running project diagnostics.
 
-## Requirements
+## Build requirements
 
-- Go 1.22 or later to build the CLI.
-- Git.
-- Python and the upstream `pre-commit` package only when running or installing hooks. The CLI itself is a compiled Go executable.
+- Go 1.22+
+- Git
+- Optional: Python and upstream `pre-commit` **only for executing/installing the hook framework in target projects**, not for building this CLI
 
-## Bootstrap, test, build and install
+## Develop and install
 
 ```bash
-go mod tidy
+just bootstrap
 just fmt
 just precommit
 just build
 just install
 ```
 
-To change the installation directory:
+To install outside `/usr/local/bin`:
 
 ```bash
 DEPLOY_PATH="$HOME/.local/bin" just install
 ```
 
-Or run `u setup --noui` using `update-cli.yaml`.
+Or use `u setup --noui`, driven by the Go-only `update-cli.yaml`.
 
-## CLI usage
+## Commands
 
 ```bash
 pre-commit-cli --help
@@ -44,20 +44,16 @@ pre-commit-cli install-hook
 pre-commit-cli safe-add -- .
 ```
 
-Legacy flag syntax such as `--setup`, `--detect`, `--run`, `--doctor`, `--status`, and `--version` is supported.
-
-## Project-local development checks
+## Quality checks
 
 ```bash
-just fmt
-just check
-just test
-just precommit
-just precommit-bootstrap
+just fmt               # gofmt all Go files
+just check             # check formatting and go vet
+just test              # go test
+just precommit         # formatting, vet, tests
+just precommit-fix     # fix formatting
 ```
 
-The source of truth is `main.go` and `go.mod`. Python source files from the previous implementation are legacy material and are not used to compile or install the Go CLI.
+The application itself contains no Python source or Python packaging/build tooling. Python support in detected target projects remains intentional.
 
-## Migration limitations
-
-The Go implementation covers the primary commands, environment detection and configuration merging. Not every specialized generated file and hook behavior of the Python version is fully ported yet. Validate configuration changes before using the CLI in production.
+The Go implementation is a migration of the main CLI features; specialized generated security files and hooks from the previous implementation may not have full feature parity.
