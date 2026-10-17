@@ -17,7 +17,7 @@ tasks:
   prepare:
     steps:
       - id: modules
-        name: Download Go dependencies
+        name: Download Go dependencies and verify go.sum
         command:
           exec: go
           args: [mod, download]
