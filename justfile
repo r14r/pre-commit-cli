@@ -40,7 +40,7 @@ version:
 # Bootstrap project tools without requiring external venv helpers
 bootstrap:
     @if [ ! -x "{{BIN}}/python" ]; then python3 -m venv {{VENV}}/python; fi
-    @{{BIN}}/python -m pip install --quiet --disable-pip-version-check --no-input -e .
+    @{{BIN}}/python -m pip install --quiet --quiet --progress-bar off --disable-pip-version-check --no-input -e .
 
 # Build standalone binary using PyInstaller
 build-pyinstaller: bootstrap
@@ -132,7 +132,7 @@ install: deploy
 # Install the QA toolchain and activate Git commit/push hooks
 precommit-bootstrap:
     @if [ ! -x "{{BIN}}/python" ]; then python3 -m venv {{VENV}}/python; fi
-    @{{BIN}}/python -m pip install --quiet --disable-pip-version-check --no-input -e ".[dev]"
+    @{{BIN}}/python -m pip install --quiet --quiet --progress-bar off --disable-pip-version-check --no-input -e ".[dev]"
     @{{BIN}}/pre-commit install --hook-type pre-commit --hook-type pre-push
 
 # Run all ordinary hooks against the entire project (read-only Ruff checks)
