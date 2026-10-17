@@ -1,0 +1,44 @@
+schemaVersion: 2
+project:
+  name: pre-commit-cli
+  type: python
+  description: Build and install the pre-commit management CLI
+defaults:
+  failFast: true
+  timeout: 15m
+requirements:
+  commands: [python3, just]
+workflows:
+  setup:
+    tasks: [prepare, check, build, deploy]
+  ci:
+    tasks: [prepare, check, build]
+tasks:
+  prepare:
+    steps:
+      - id: bootstrap
+        name: Create Python virtual environment and install dependencies
+        command:
+          exec: just
+          args: [bootstrap]
+  check:
+    steps:
+      - id: syntax
+        name: Check Python source syntax
+        command:
+          exec: just
+          args: [check]
+  build:
+    steps:
+      - id: package
+        name: Build standalone executable with PyInstaller
+        command:
+          exec: just
+          args: [build, pyinstaller]
+  deploy:
+    steps:
+      - id: install
+        name: Deploy CLI binary
+        command:
+          exec: just
+          args: [deploy, pyinstaller]
