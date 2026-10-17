@@ -1,0 +1,26 @@
+name: Quality checks
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+jobs:
+  precommit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install just
+        uses: extractions/setup-just@v2
+      - name: Bootstrap QA dependencies
+        run: just precommit-bootstrap
+      - name: Validate hook configuration
+        run: just precommit-validate
+      - name: Run project checks
+        run: just precommit
+      - name: Run tests
+        run: just precommit-test
+      - name: Run security scan
+        run: just precommit-security
