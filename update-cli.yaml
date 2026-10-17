@@ -1,44 +1,59 @@
 schemaVersion: 2
 project:
   name: pre-commit-cli
-  type: python
-  description: Build and install the pre-commit management CLI
+  type: go
+  description: Native Go pre-commit configuration and hook manager
 defaults:
   failFast: true
-  timeout: 15m
+  timeout: 10m
 requirements:
-  commands: [python3, just]
+  commands: [go, git]
 workflows:
   setup:
-    tasks: [prepare, check, build, deploy]
+    tasks: [prepare, check, test, build, deploy]
   ci:
-    tasks: [prepare, check, build]
+    tasks: [prepare, check, test, build]
 tasks:
   prepare:
     steps:
-      - id: bootstrap
-        name: Create Python virtual environment and install dependencies
+      - id: modules
+        name: Download Go dependencies
         command:
-          exec: just
-          args: [precommit-bootstrap]
+          exec: go
+          args: [mod, download]
   check:
     steps:
-      - id: syntax
-        name: Run all pre-commit checks
+      - id: format
+        name: Check gofmt formatting
+        shell: |
+          files="$(gofmt -l main.go)"
+          if [ -n "$files" ]; then
+            echo "$files"
+            exit 1
+          fi
+      - id: vet
+        name: Run go vet
         command:
-          exec: just
-          args: [precommit]
+          exec: go
+          args: [vet, ./...]
+  test:
+    steps:
+      - id: tests
+        name: Run Go tests
+        command:
+          exec: go
+          args: [test, ./...]
   build:
     steps:
-      - id: package
-        name: Build standalone executable with PyInstaller
-        command:
-          exec: just
-          args: [build, pyinstaller]
+      - id: compile
+        name: Build Go binary
+        shell: |
+          mkdir -p dist
+          go build -trimpath -ldflags "-s -w" -o dist/pre-commit-cli .
   deploy:
     steps:
       - id: install
-        name: Deploy CLI binary
-        command:
-          exec: just
-          args: [deploy, pyinstaller]
+        name: Install executable
+        shell: |
+          mkdir -p "${DEPLOY_PATH:-/usr/local/bin}"
+          install -m 0755 dist/pre-commit-cli "${DEPLOY_PATH:-/usr/local/bin}/pre-commit-cli"
