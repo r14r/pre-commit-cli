@@ -20,14 +20,14 @@ tasks:
         name: Create Python virtual environment and install dependencies
         command:
           exec: just
-          args: [bootstrap]
+          args: [precommit-bootstrap]
   check:
     steps:
       - id: syntax
-        name: Check Python source syntax
+        name: Run all pre-commit checks
         command:
           exec: just
-          args: [check]
+          args: [precommit]
   build:
     steps:
       - id: package
