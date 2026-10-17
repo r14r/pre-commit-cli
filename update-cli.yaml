@@ -21,12 +21,17 @@ tasks:
         command:
           exec: go
           args: [mod, download]
+      - id: gofmt
+        name: Format Go sources
+        command:
+          exec: gofmt
+          args: [-w, main.go, main_test.go]
   check:
     steps:
       - id: format
         name: Check gofmt formatting
         shell: |
-          files="$(gofmt -l main.go)"
+          files="$(gofmt -l main.go main_test.go)"
           if [ -n "$files" ]; then
             echo "$files"
             exit 1
