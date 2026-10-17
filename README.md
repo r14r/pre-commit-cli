@@ -133,3 +133,30 @@ pre-commit-cli --run
 ## Notes
 
 The tool deliberately avoids `brew install pre-commit`. It creates or uses a project-local `.venv` and installs `pre-commit` there. This avoids Homebrew/Python incompatibilities on older macOS versions.
+
+## Repository quality checks
+
+This repository uses `.pre-commit-config.yaml` with locally installed tools.
+No Homebrew installation is required.
+
+```bash
+git pull origin main
+just precommit-bootstrap # creates .venv/python, installs .[dev], installs commit/push hooks
+just precommit-validate
+just precommit        # all regular hooks on all files
+just precommit-all    # regular + pytest, Bandit and pip-audit manual hooks
+just precommit-fix    # fix Ruff lint and formatting problems in src/
+```
+
+Additional commands: `just precommit-staged`, `just precommit-test`,
+`just precommit-security`, `just precommit-install`,
+`just precommit-uninstall`, and `just precommit-clean`.
+
+Regular hooks use read-only Ruff checks to prevent silent changes during a
+commit. Whitespace and EOF hooks can update files; stage the resulting changes
+and rerun the command. The full Python dependency vulnerability scan is run by
+`just precommit-security` and the CI quality workflow.
+
+The update-cli `setup` workflow bootstraps the QA dependencies, runs
+pre-commit, builds the application and deploys it. The CI `quality.yml`
+workflow runs the same checks on pushes and pull requests.
